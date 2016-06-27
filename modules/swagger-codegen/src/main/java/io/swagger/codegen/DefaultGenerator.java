@@ -151,7 +151,7 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
             }
             if (info.getDescription() != null) {
                 config.additionalProperties().put("appDescription",
-                        config.escapeText(info.getDescription()));
+                        info.getDescription());
             }
             if (info.getContact() != null) {
                 Contact contact = info.getContact();
