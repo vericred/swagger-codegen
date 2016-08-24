@@ -3,7 +3,7 @@
 """
     Swagger Petstore
 
-    This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\ 
+    This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\
 
     OpenAPI spec version: 1.0.0
     Contact: apiteam@swagger.io
@@ -65,6 +65,7 @@ class Order(object):
         self._ship_date = ship_date
         self._status = status
         self._complete = complete
+
 
     @property
     def id(self):
@@ -181,8 +182,8 @@ class Order(object):
         allowed_values = ["placed", "approved", "delivered"]
         if status not in allowed_values:
             raise ValueError(
-                "Invalid value for `status`, must be one of {0}"
-                .format(allowed_values)
+                "Invalid value for `status` ({0}), must be one of {1}"
+                .format(status, allowed_values)
             )
 
         self._status = status

@@ -2,6 +2,8 @@ package io.swagger.codegen;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.samskivert.mustache.Mustache.Compiler;
+
 import io.swagger.codegen.examples.ExampleGenerator;
 import io.swagger.models.ArrayModel;
 import io.swagger.models.ComposedModel;
@@ -71,7 +73,8 @@ import java.util.regex.Pattern;
 
 public class DefaultCodegen {
     protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegen.class);
-
+    
+    protected String inputSpec;
     protected String outputFolder = "";
     protected Set<String> defaultIncludes = new HashSet<String>();
     protected Map<String, String> typeMapping = new HashMap<String, String>();
@@ -106,7 +109,7 @@ public class DefaultCodegen {
     // How to encode special characters like $
     // They are translated to words like "Dollar" and prefixed with '
     // Then translated back during JSON encoding and decoding
-    protected Map<Character, String> specialCharReplacements = new HashMap<Character, String>();
+    protected Map<String, String> specialCharReplacements = new HashMap<String, String>();
 
     public List<CliOption> cliOptions() {
         return cliOptions;
@@ -326,18 +329,51 @@ public class DefaultCodegen {
     @SuppressWarnings("unused")
     public void processSwagger(Swagger swagger) {
     }
+    
+    // override with any special handling of the JMustache compiler
+    @SuppressWarnings("unused")
+    public Compiler processCompiler(Compiler compiler) {
+    	return compiler;
+    }
 
     // override with any special text escaping logic
     @SuppressWarnings("static-method")
     public String escapeText(String input) {
-        if (input != null) {
-            // remove \t, \n, \r
-            // repalce \ with \\
-            // repalce " with \"
-            // outter unescape to retain the original multi-byte characters
-            return StringEscapeUtils.unescapeJava(StringEscapeUtils.escapeJava(input).replace("\\/", "/")).replaceAll("[\\t\\n\\r]"," ").replace("\\", "\\\\").replace("\"", "\\\"");
+        if (input == null) {
+            return input;
         }
+
+        // remove \t, \n, \r
+        // replace \ with \\
+        // replace " with \"
+        // outter unescape to retain the original multi-byte characters
+        // finally escalate characters avoiding code injection
+        return escapeUnsafeCharacters(StringEscapeUtils.unescapeJava(StringEscapeUtils.escapeJava(input).replace("\\/", "/")).replaceAll("[\\t\\n\\r]"," ").replace("\\", "\\\\").replace("\"", "\\\""));
+    }
+
+    /**
+     * override with any special text escaping logic to handle unsafe
+     * characters so as to avoid code injection
+     * @param input String to be cleaned up
+     * @return string with unsafe characters removed or escaped
+     */
+    public String escapeUnsafeCharacters(String input) {
+        LOGGER.warn("escapeUnsafeCharacters should be overriden in the code generator with proper logic to escape unsafe characters");
+        // doing nothing by default and code generator should implement
+        // the logic to prevent code injection
+        // later we'll make this method abstract to make sure
+        // code generator implements this method
         return input;
+    }
+
+    /**
+     * Escape single and/or double quote to avoid code injection 
+     * @param input String to be cleaned up
+     * @return string with quotation mark removed or escaped
+     */
+    public String escapeQuotationMark(String input) {
+        LOGGER.warn("escapeQuotationMark should be overriden in the code generator with proper logic to escape single/double quote");
+        return input.replace("\"", "\\\"");
     }
 
     public Set<String> defaultIncludes() {
@@ -472,6 +508,14 @@ public class DefaultCodegen {
         return outputFolder();
     }
 
+    public String getInputSpec() {
+        return inputSpec;
+    }
+
+    public void setInputSpec(String inputSpec) {
+        this.inputSpec = inputSpec;
+    }
+
     public void setTemplateDir(String templateDir) {
         this.templateDir = templateDir;
     }
@@ -507,7 +551,7 @@ public class DefaultCodegen {
      * @return properly-escaped pattern
      */
     public String toRegularExpression(String pattern) {
-        return escapeText(pattern);
+        return escapeText(addRegularExpressionDelimiter(pattern));
     }
 
     /**
@@ -762,21 +806,51 @@ public class DefaultCodegen {
      */
     protected void initalizeSpecialCharacterMapping() {
         // Initialize special characters
-        specialCharReplacements.put('$', "Dollar");
-        specialCharReplacements.put('^', "Caret");
-        specialCharReplacements.put('|', "Pipe");
-        specialCharReplacements.put('=', "Equal");
-        specialCharReplacements.put('*', "Star");
-        specialCharReplacements.put('-', "Minus");
-        specialCharReplacements.put('&', "Ampersand");
-        specialCharReplacements.put('%', "Percent");
-        specialCharReplacements.put('#', "Hash");
-        specialCharReplacements.put('@', "At");
-        specialCharReplacements.put('!', "Exclamation");
-        specialCharReplacements.put('+', "Plus");
-        specialCharReplacements.put(':', "Colon");
-        specialCharReplacements.put('>', "GreaterThan");
-        specialCharReplacements.put('<', "LessThan");
+        specialCharReplacements.put("$", "Dollar");
+        specialCharReplacements.put("^", "Caret");
+        specialCharReplacements.put("|", "Pipe");
+        specialCharReplacements.put("=", "Equal");
+        specialCharReplacements.put("*", "Star");
+        specialCharReplacements.put("-", "Minus");
+        specialCharReplacements.put("&", "Ampersand");
+        specialCharReplacements.put("%", "Percent");
+        specialCharReplacements.put("#", "Hash");
+        specialCharReplacements.put("@", "At");
+        specialCharReplacements.put("!", "Exclamation");
+        specialCharReplacements.put("+", "Plus");
+        specialCharReplacements.put(":", "Colon");
+        specialCharReplacements.put(">", "Greater_Than");
+        specialCharReplacements.put("<", "Less_Than");
+        specialCharReplacements.put(".", "Period");
+        specialCharReplacements.put("_", "Underscore");
+        specialCharReplacements.put("?", "Question_Mark");
+        specialCharReplacements.put(",", "Comma");
+        specialCharReplacements.put("'", "Quote");
+        specialCharReplacements.put("\"", "Double_Quote");
+        specialCharReplacements.put("/", "Slash");
+        specialCharReplacements.put("\\", "Back_Slash");
+        specialCharReplacements.put("(", "Left_Parenthesis");
+        specialCharReplacements.put(")", "Right_Parenthesis");
+        specialCharReplacements.put("{", "Left_Curly_Bracket");
+        specialCharReplacements.put("}", "Right_Curly_Bracket");
+        specialCharReplacements.put("[", "Left_Square_Bracket");
+        specialCharReplacements.put("]", "Right_Square_Bracket");
+        specialCharReplacements.put("~", "Tilde");
+        specialCharReplacements.put("`", "Backtick");
+
+        specialCharReplacements.put("<=", "Less_Than_Or_Equal_To");
+        specialCharReplacements.put(">=", "Greater_Than_Or_Equal_To");
+        specialCharReplacements.put("!=", "Not_Equal");
+    }
+
+    /**
+     * Return the symbol name of a symbol
+     *
+     * @param input Symbol (e.g. $)
+     * @return Symbol name (e.g. Dollar)
+     */
+    protected String getSymbolName(String input) {
+        return specialCharReplacements.get(input);
     }
 
     /**
@@ -1168,7 +1242,35 @@ public class DefaultCodegen {
                 allRequired = null;
             }
             // parent model
-            final RefModel parent = (RefModel) composed.getParent();
+            RefModel parent = (RefModel) composed.getParent();
+
+            // interfaces (intermediate models)
+            if (composed.getInterfaces() != null) {
+                if (m.interfaces == null)
+                    m.interfaces = new ArrayList<String>();
+                for (RefModel _interface : composed.getInterfaces()) {
+                    Model interfaceModel = null;
+                    if (allDefinitions != null) {
+                        interfaceModel = allDefinitions.get(_interface.getSimpleRef());
+                    }
+                    // set first interface with discriminator found as parent
+                    if (parent == null && interfaceModel instanceof ModelImpl && ((ModelImpl) interfaceModel).getDiscriminator() != null) {
+                        parent = _interface;
+                    } else {
+                        final String interfaceRef = toModelName(_interface.getSimpleRef());
+                        m.interfaces.add(interfaceRef);
+                        addImport(m, interfaceRef);
+                        if (allDefinitions != null) {
+                            if (supportsInheritance) {
+                                addProperties(allProperties, allRequired, interfaceModel, allDefinitions);
+                            } else {
+                                addProperties(properties, required, interfaceModel, allDefinitions);
+                            }
+                        }
+                    }
+                }
+            }
+
             if (parent != null) {
                 final String parentRef = parent.getSimpleRef();
                 m.parentSchema = parentRef;
@@ -1183,24 +1285,7 @@ public class DefaultCodegen {
                     }
                 }
             }
-            // interfaces (intermediate models)
-            if (composed.getInterfaces() != null) {
-                if (m.interfaces == null)
-                    m.interfaces = new ArrayList<String>();
-                for (RefModel _interface : composed.getInterfaces()) {
-                    final String interfaceRef = toModelName(_interface.getSimpleRef());
-                    m.interfaces.add(interfaceRef);
-                    addImport(m, interfaceRef);
-                    if (allDefinitions != null) {
-                        final Model interfaceModel = allDefinitions.get(_interface.getSimpleRef());
-                        if (supportsInheritance) {
-                            addProperties(allProperties, allRequired, interfaceModel, allDefinitions);
-                        } else {
-                            addProperties(properties, required, interfaceModel, allDefinitions);
-                        }
-                    }
-                }
-            }
+
             // child model (properties owned by the model itself)
             Model child = composed.getChild();
             if (child != null && child instanceof RefModel && allDefinitions != null) {
@@ -1296,7 +1381,7 @@ public class DefaultCodegen {
 
         property.name = toVarName(name);
         property.baseName = name;
-        property.nameInCamelCase = camelize(name, false);
+        property.nameInCamelCase = camelize(property.name, false);
         property.description = escapeText(p.getDescription());
         property.unescapedDescription = p.getDescription();
         property.getter = "get" + getterAndSetterCapitalize(name);
@@ -1516,10 +1601,12 @@ public class DefaultCodegen {
             }
         }
         property.datatype = getTypeDeclaration(p);
+        property.dataFormat = p.getFormat();
 
         // this can cause issues for clients which don't support enums
         if (property.isEnum) {
             property.datatypeWithEnum = toEnumName(property);
+            property.enumName = toEnumName(property);
         } else {
             property.datatypeWithEnum = property.datatype;
         }
@@ -1567,15 +1654,14 @@ public class DefaultCodegen {
             property.items = innerProperty;
             // inner item is Enum
             if (isPropertyInnerMostEnum(property)) {
+                // isEnum is set to true when the type is an enum
+                // or the inner type of an array/map is an enum
                 property.isEnum = true;
-                // update datatypeWithEnum for array
+                // update datatypeWithEnum and default value for array
                 // e.g. List<string> => List<StatusEnum>
                 updateDataTypeWithEnumForArray(property);
-
-                // TOOD need to revise the default value for enum
-                if (property.defaultValue != null) {
-                    property.defaultValue = property.defaultValue.replace(property.items.baseType, property.items.datatypeWithEnum);
-                }
+                // set allowable values to enum values (including array/map of enum)
+                property.allowableValues = getInnerEnumAllowableValues(property);
             }
         }
     }
@@ -1598,16 +1684,14 @@ public class DefaultCodegen {
             property.items = innerProperty;
             // inner item is Enum
             if (isPropertyInnerMostEnum(property)) {
+                // isEnum is set to true when the type is an enum
+                // or the inner type of an array/map is an enum
                 property.isEnum = true;
-                // update datatypeWithEnum for map
+                // update datatypeWithEnum and default value for map
                 // e.g. Dictionary<string, string> => Dictionary<string, StatusEnum>
                 updateDataTypeWithEnumForMap(property);
-
-                // TOOD need to revise the default value for enum
-                // set default value
-                if (property.defaultValue != null) {
-                    property.defaultValue = property.defaultValue.replace(property.items.baseType, property.items.datatypeWithEnum);
-                }
+                // set allowable values to enum values (including array/map of enum)
+                property.allowableValues = getInnerEnumAllowableValues(property);
             }
         }
 
@@ -1628,6 +1712,17 @@ public class DefaultCodegen {
         return currentProperty.isEnum;
     }
 
+    protected Map<String, Object> getInnerEnumAllowableValues(CodegenProperty property) {
+        CodegenProperty currentProperty = property;
+        while (currentProperty != null && (Boolean.TRUE.equals(currentProperty.isMapContainer)
+                    || Boolean.TRUE.equals(currentProperty.isListContainer))) {
+            currentProperty = currentProperty.items;
+        }
+
+        return currentProperty.allowableValues;
+    }
+
+
     /**
      * Update datatypeWithEnum for array container
      * @param property Codegen property
@@ -1640,7 +1735,15 @@ public class DefaultCodegen {
         }
         // set both datatype and datetypeWithEnum as only the inner type is enum
         property.datatypeWithEnum = property.datatypeWithEnum.replace(baseItem.baseType, toEnumName(baseItem));
-        //property.datatype = property.datatypeWithEnum;
+
+        // naming the enum with respect to the language enum naming convention
+        // e.g. remove [], {} from array/map of enum
+        property.enumName = toEnumName(property);
+
+        // set default value for variable with inner enum
+        if (property.defaultValue != null) {
+            property.defaultValue = property.defaultValue.replace(baseItem.baseType, toEnumName(baseItem));
+        }
     }
 
     /**
@@ -1655,7 +1758,15 @@ public class DefaultCodegen {
         }
         // set both datatype and datetypeWithEnum as only the inner type is enum
         property.datatypeWithEnum = property.datatypeWithEnum.replace(", " + baseItem.baseType, ", " + toEnumName(baseItem));
-        //property.datatype = property.datatypeWithEnum;
+
+        // naming the enum with respect to the language enum naming convention
+        // e.g. remove [], {} from array/map of enum
+        property.enumName = toEnumName(property);
+
+        // set default value for variable with inner enum
+        if (property.defaultValue != null) {
+            property.defaultValue = property.defaultValue.replace(", " + property.items.baseType, ", " + toEnumName(property.items));
+        }
     }
 
     protected void setNonArrayMapProperty(CodegenProperty property, String type) {
@@ -1747,7 +1858,8 @@ public class DefaultCodegen {
             int count = 0;
             for (String key : consumes) {
                 Map<String, String> mediaType = new HashMap<String, String>();
-                mediaType.put("mediaType", key);
+                // escape quotation to avoid code injection
+                mediaType.put("mediaType", escapeText(escapeQuotationMark(key)));
                 count += 1;
                 if (count < consumes.size()) {
                     mediaType.put("hasMore", "true");
@@ -1780,7 +1892,8 @@ public class DefaultCodegen {
             int count = 0;
             for (String key : produces) {
                 Map<String, String> mediaType = new HashMap<String, String>();
-                mediaType.put("mediaType", key);
+                // escape quotation to avoid code injection
+                mediaType.put("mediaType", escapeText(escapeQuotationMark(key)));
                 count += 1;
                 if (count < produces.size()) {
                     mediaType.put("hasMore", "true");
@@ -2116,6 +2229,7 @@ public class DefaultCodegen {
             setParameterBooleanFlagWithCodegenProperty(p, cp);
 
             p.dataType = cp.datatype;
+            p.dataFormat = cp.dataFormat;
             if(cp.isEnum) {
                 p.datatypeWithEnum = cp.datatypeWithEnum;
             }
@@ -2322,6 +2436,7 @@ public class DefaultCodegen {
             CodegenSecurity sec = CodegenModelFactory.newInstance(CodegenModelType.SECURITY);
             sec.name = entry.getKey();
             sec.type = schemeDefinition.getType();
+            sec.isCode = sec.isPassword = sec.isApplication = sec.isImplicit = false;
 
             if (schemeDefinition instanceof ApiKeyAuthDefinition) {
                 final ApiKeyAuthDefinition apiKeyDefinition = (ApiKeyAuthDefinition) schemeDefinition;
@@ -2338,6 +2453,22 @@ public class DefaultCodegen {
             	sec.isKeyInHeader = sec.isKeyInQuery = sec.isApiKey = sec.isBasic = false;
                 sec.isOAuth = true;
                 sec.flow = oauth2Definition.getFlow();
+                switch(sec.flow) {
+                    case "accessCode":
+                        sec.isCode = true;
+                        break;
+                    case "password":
+                        sec.isPassword = true;
+                        break;
+                    case "application":
+                        sec.isApplication = true;
+                        break;
+                    case "implicit":
+                        sec.isImplicit = true;
+                        break;
+                    default:
+                        throw new RuntimeException("unknown oauth flow: " + sec.flow);
+                }
                 sec.authorizationUrl = oauth2Definition.getAuthorizationUrl();
                 sec.tokenUrl = oauth2Definition.getTokenUrl();
                 if (oauth2Definition.getScopes() != null) {
@@ -2346,7 +2477,7 @@ public class DefaultCodegen {
                     for(Map.Entry<String, String> scopeEntry : oauth2Definition.getScopes().entrySet()) {
                         Map<String, Object> scope = new HashMap<String, Object>();
                         scope.put("scope", scopeEntry.getKey());
-                        scope.put("description", scopeEntry.getValue());
+                        scope.put("description", escapeText(scopeEntry.getValue()));
 
                         count += 1;
                         if (count < numScopes) {
@@ -3141,5 +3272,20 @@ public class DefaultCodegen {
                 var.defaultValue = toEnumDefaultValue(enumName, var.datatypeWithEnum);
             }
         }
+    }
+
+    /**
+     * If the pattern misses the delimiter, add "/" to the beginning and end
+     * Otherwise, return the original pattern
+     *
+     * @param pattern the pattern (regular expression)
+     * @return the pattern with delimiter
+     */
+    public String addRegularExpressionDelimiter(String pattern) {
+        if (pattern != null && !pattern.matches("^/.*")) {
+            return "/" + pattern + "/";
+        }
+
+        return pattern;
     }
 }

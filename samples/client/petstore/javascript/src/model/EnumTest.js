@@ -1,6 +1,6 @@
 /**
  * Swagger Petstore
- * This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\ 
+ * This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\
  *
  * OpenAPI spec version: 1.0.0
  * Contact: apiteam@swagger.io
@@ -76,7 +76,7 @@
         obj['enum_string'] = ApiClient.convertToType(data['enum_string'], 'String');
       }
       if (data.hasOwnProperty('enum_integer')) {
-        obj['enum_integer'] = ApiClient.convertToType(data['enum_integer'], 'Integer');
+        obj['enum_integer'] = ApiClient.convertToType(data['enum_integer'], 'Number');
       }
       if (data.hasOwnProperty('enum_number')) {
         obj['enum_number'] = ApiClient.convertToType(data['enum_number'], 'Number');
@@ -115,9 +115,10 @@
      * @const
      */
     "lower": "lower"  };
+
   /**
    * Allowed values for the <code>enum_integer</code> property.
-   * @enum {Integer}
+   * @enum {Number}
    * @readonly
    */
   exports.EnumIntegerEnum = {
@@ -131,6 +132,7 @@
      * @const
      */
     "-1": -1  };
+
   /**
    * Allowed values for the <code>enum_number</code> property.
    * @enum {Number}

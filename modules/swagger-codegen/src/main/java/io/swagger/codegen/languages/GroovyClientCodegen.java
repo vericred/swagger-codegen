@@ -12,6 +12,10 @@ public class GroovyClientCodegen extends AbstractJavaCodegen {
     public GroovyClientCodegen() {
         super();
 
+        // clear import mapping (from default generator) as groovy does not use it
+        // at the moment
+        importMapping.clear();
+
         sourceFolder = projectFolder + File.separator + "groovy";
         outputFolder = "generated-code/groovy";
         modelTemplateFiles.put("model.mustache", ".groovy");
@@ -83,4 +87,14 @@ public class GroovyClientCodegen extends AbstractJavaCodegen {
         this.configPackage = configPackage;
     }
 
+    @Override
+    public String escapeQuotationMark(String input) {
+        // remove ' to avoid code injection
+        return input.replace("'", "");
+    }
+
+    @Override
+    public String escapeUnsafeCharacters(String input) {
+        return input.replace("*/", "*_/").replace("/*", "/_*");
+    }
 }

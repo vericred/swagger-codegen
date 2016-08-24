@@ -3,7 +3,7 @@
 """
     Swagger Petstore
 
-    This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\ 
+    This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\
 
     OpenAPI spec version: 1.0.0
     Contact: apiteam@swagger.io
@@ -53,6 +53,7 @@ class AdditionalPropertiesClass(object):
 
         self._map_property = map_property
         self._map_of_map_property = map_of_map_property
+
 
     @property
     def map_property(self):

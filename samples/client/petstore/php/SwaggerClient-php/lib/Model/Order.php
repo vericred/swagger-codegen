@@ -43,12 +43,11 @@ namespace Swagger\Client\Model;
 
 use \ArrayAccess;
 
-
-
 /**
  * Order Class Doc Comment
  *
- * @category    Class
+ * @category    Class */
+/** 
  * @package     Swagger\Client
  * @author      http://github.com/swagger-api/swagger-codegen
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache Licene v2
@@ -186,6 +185,7 @@ class Order implements ArrayAccess
         if (!in_array($this->container['status'], $allowed_values)) {
             $invalid_properties[] = "invalid value for 'status', must be one of #{allowed_values}.";
         }
+
         return $invalid_properties;
     }
 

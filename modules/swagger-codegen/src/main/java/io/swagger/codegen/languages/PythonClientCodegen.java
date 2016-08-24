@@ -33,6 +33,10 @@ public class PythonClientCodegen extends DefaultCodegen implements CodegenConfig
     public PythonClientCodegen() {
         super();
 
+        // clear import mapping (from default generator) as python does not use it
+        // at the moment
+        importMapping.clear();
+
         modelPackage = "models";
         apiPackage = "api";
         outputFolder = "generated-code" + File.separatorChar + "python";
@@ -590,5 +594,16 @@ public class PythonClientCodegen extends DefaultCodegen implements CodegenConfig
         p.example = example;
     }
 
+    @Override
+    public String escapeQuotationMark(String input) {
+        // remove ' to avoid code injection
+        return input.replace("'", "");
+    }
+
+    @Override
+    public String escapeUnsafeCharacters(String input) {
+        // remove multiline comment
+        return input.replace("'''", "'_'_'");
+    }
 
 }
