@@ -50,6 +50,11 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
     public PhpClientCodegen() {
         super();
 
+        // clear import mapping (from default generator) as php does not use it
+        // at the moment
+        importMapping.clear();
+        
+
         supportsInheritance = true;
         outputFolder = "generated-code" + File.separator + "php";
         modelTemplateFiles.put("model.mustache", ".php");
@@ -640,6 +645,9 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
     public String toEnumName(CodegenProperty property) {
         String enumName = underscore(toModelName(property.name)).toUpperCase();
 
+        // remove [] for array or map of enum
+        enumName = enumName.replace("[]", "");
+
         if (enumName.matches("\\d.*")) { // starts with number
             return "_" + enumName;
         } else {
@@ -658,8 +666,22 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
         Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
         List<CodegenOperation> operationList = (List<CodegenOperation>) operations.get("operation");
         for (CodegenOperation op : operationList) {
+            // for API test method name
+            // e.g. public function test{{vendorExtensions.x-testOperationId}}()
             op.vendorExtensions.put("x-testOperationId", camelize(op.operationId));
         }
         return objs;
     }
+
+    @Override
+    public String escapeQuotationMark(String input) {
+        // remove ' to avoid code injection
+        return input.replace("'", "");
+    }
+
+    @Override
+    public String escapeUnsafeCharacters(String input) {
+        return input.replace("*/", "*_/").replace("/*", "/_*");
+    }
+
 }

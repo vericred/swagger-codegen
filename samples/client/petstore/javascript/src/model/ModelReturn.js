@@ -1,6 +1,6 @@
 /**
  * Swagger Petstore
- * This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\ 
+ * This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\
  *
  * OpenAPI spec version: 1.0.0
  * Contact: apiteam@swagger.io
@@ -72,17 +72,16 @@
       obj = obj || new exports();
 
       if (data.hasOwnProperty('return')) {
-        obj['return'] = ApiClient.convertToType(data['return'], 'Integer');
+        obj['return'] = ApiClient.convertToType(data['return'], 'Number');
       }
     }
     return obj;
   }
 
   /**
-   * @member {Integer} return
+   * @member {Number} return
    */
   exports.prototype['return'] = undefined;
-
 
 
 

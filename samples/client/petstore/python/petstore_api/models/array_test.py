@@ -3,7 +3,7 @@
 """
     Swagger Petstore
 
-    This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\ 
+    This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\
 
     OpenAPI spec version: 1.0.0
     Contact: apiteam@swagger.io
@@ -56,6 +56,7 @@ class ArrayTest(object):
         self._array_of_string = array_of_string
         self._array_array_of_integer = array_array_of_integer
         self._array_array_of_model = array_array_of_model
+
 
     @property
     def array_of_string(self):

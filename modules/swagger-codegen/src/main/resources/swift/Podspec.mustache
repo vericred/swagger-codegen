@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.9'
   s.version = '{{#podVersion}}{{podVersion}}{{/podVersion}}{{^podVersion}}0.0.1{{/podVersion}}'
   s.source = {{#podSource}}{{& podSource}}{{/podSource}}{{^podSource}}{ :git => 'git@github.com:swagger-api/swagger-mustache.git', :tag => 'v1.0.0' }{{/podSource}}{{#podAuthors}}
-  s.authors = {{& podAuthors}}{{/podAuthors}}{{#podSocialMediaURL}}
+  s.authors = '{{podAuthors}}'{{/podAuthors}}{{#podSocialMediaURL}}
   s.social_media_url = '{{podSocialMediaURL}}'{{/podSocialMediaURL}}{{#podDocsetURL}}
   s.docset_url = '{{podDocsetURL}}'{{/podDocsetURL}}
   s.license = {{#podLicense}}{{& podLicense}}{{/podLicense}}{{^podLicense}}'Apache License, Version 2.0'{{/podLicense}}{{#podHomepage}}
@@ -16,5 +16,5 @@ Pod::Spec.new do |s|
   s.documentation_url = '{{podDocumentationURL}}'{{/podDocumentationURL}}
   s.source_files = '{{projectName}}/Classes/Swaggers/**/*.swift'{{#usePromiseKit}}
   s.dependency 'PromiseKit', '~> 3.1.1'{{/usePromiseKit}}
-  s.dependency 'Alamofire', '~> 3.1.5'
+  s.dependency 'Alamofire', '~> 3.4.1'
 end

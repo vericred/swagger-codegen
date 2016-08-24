@@ -1,3 +1,4 @@
+{{>licenseInfo}}
 package {{invokerPackage}};
 
 import com.fasterxml.jackson.annotation.*;
@@ -71,7 +72,7 @@ public class ApiClient {
     objectMapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
     objectMapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
     {{#java8}}
-    objectMapper.registerModule(new JSR310Module());
+    objectMapper.registerModule(new JavaTimeModule());
     {{/java8}}
     {{^java8}}
     objectMapper.registerModule(new JodaModule());
@@ -496,9 +497,16 @@ public class ApiClient {
     if (contentType.startsWith("multipart/form-data")) {
       FormDataMultiPart mp = new FormDataMultiPart();
       for (Entry<String, Object> param: formParams.entrySet()) {
-        if (param.getValue() instanceof File) {
+        if( param.getValue() instanceof List && !( ( List ) param.getValue() ).isEmpty()
+                  && ( ( List ) param.getValue() ).get( 0 ) instanceof File ) {
+            @SuppressWarnings( "unchecked" )
+            List<File> files = ( List<File> ) param.getValue();
+            for( File file : files ) {
+              mp.bodyPart( new FileDataBodyPart( param.getKey(), file, MediaType.APPLICATION_OCTET_STREAM_TYPE ) );
+            }
+        } else if (param.getValue() instanceof File) {
           File file = (File) param.getValue();
-          mp.bodyPart(new FileDataBodyPart(param.getKey(), file, MediaType.MULTIPART_FORM_DATA_TYPE));
+          mp.bodyPart(new FileDataBodyPart(param.getKey(), file, MediaType.APPLICATION_OCTET_STREAM_TYPE));
         } else {
           mp.field(param.getKey(), parameterToString(param.getValue()), MediaType.MULTIPART_FORM_DATA_TYPE);
         }

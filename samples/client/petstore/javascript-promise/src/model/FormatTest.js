@@ -1,6 +1,6 @@
 /**
  * Swagger Petstore
- * This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\ 
+ * This spec is mainly for testing Petstore server and contains fake endpoints, models. Please do not use this for any other purpose. Special characters: \" \\
  *
  * OpenAPI spec version: 1.0.0
  * Contact: apiteam@swagger.io
@@ -52,10 +52,10 @@
    * Constructs a new <code>FormatTest</code>.
    * @alias module:model/FormatTest
    * @class
-   * @param _number
-   * @param _byte
-   * @param _date
-   * @param password
+   * @param _number {Number} 
+   * @param _byte {String} 
+   * @param _date {Date} 
+   * @param password {String} 
    */
   var exports = function(_number, _byte, _date, password) {
     var _this = this;
@@ -87,13 +87,13 @@
       obj = obj || new exports();
 
       if (data.hasOwnProperty('integer')) {
-        obj['integer'] = ApiClient.convertToType(data['integer'], 'Integer');
+        obj['integer'] = ApiClient.convertToType(data['integer'], 'Number');
       }
       if (data.hasOwnProperty('int32')) {
-        obj['int32'] = ApiClient.convertToType(data['int32'], 'Integer');
+        obj['int32'] = ApiClient.convertToType(data['int32'], 'Number');
       }
       if (data.hasOwnProperty('int64')) {
-        obj['int64'] = ApiClient.convertToType(data['int64'], 'Integer');
+        obj['int64'] = ApiClient.convertToType(data['int64'], 'Number');
       }
       if (data.hasOwnProperty('number')) {
         obj['number'] = ApiClient.convertToType(data['number'], 'Number');
@@ -130,15 +130,15 @@
   }
 
   /**
-   * @member {Integer} integer
+   * @member {Number} integer
    */
   exports.prototype['integer'] = undefined;
   /**
-   * @member {Integer} int32
+   * @member {Number} int32
    */
   exports.prototype['int32'] = undefined;
   /**
-   * @member {Integer} int64
+   * @member {Number} int64
    */
   exports.prototype['int64'] = undefined;
   /**
@@ -181,7 +181,6 @@
    * @member {String} password
    */
   exports.prototype['password'] = undefined;
-
 
 
 

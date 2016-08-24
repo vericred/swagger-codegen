@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class CodegenProperty implements Cloneable {
     public String baseName, complexType, getter, setter, description, datatype, datatypeWithEnum,
-            name, min, max, defaultValue, defaultValueWithParam, baseType, containerType;
+            dataFormat, name, min, max, defaultValue, defaultValueWithParam, baseType, containerType;
 
     public String unescapedDescription;
 
@@ -46,6 +46,8 @@ public class CodegenProperty implements Cloneable {
     public Boolean hasValidation; // true if pattern, maximum, etc are set (only used in the mustache template)
     public Boolean isInherited;
     public String nameInCamelCase; // property name in camel case
+    // enum name based on the property name, usually use as a prefix (e.g. VAR_NAME) for enum name (e.g. VAR_NAME_VALUE1)
+    public String enumName; 
 
     @Override
     public String toString() {
@@ -66,6 +68,7 @@ public class CodegenProperty implements Cloneable {
         result = prime * result + ((containerType == null) ? 0 : containerType.hashCode());
         result = prime * result + ((datatype == null) ? 0 : datatype.hashCode());
         result = prime * result + ((datatypeWithEnum == null) ? 0 : datatypeWithEnum.hashCode());
+        result = prime * result + ((dataFormat == null) ? 0 : dataFormat.hashCode());
         result = prime * result + ((defaultValue == null) ? 0 : defaultValue.hashCode());
         result = prime * result + ((defaultValueWithParam == null) ? 0 : defaultValueWithParam.hashCode());
         result = prime * result + ((description == null) ? 0 : description.hashCode());
@@ -110,6 +113,7 @@ public class CodegenProperty implements Cloneable {
         result = prime * result + ((isListContainer == null) ? 0 : isListContainer.hashCode());
         result = prime * result + Objects.hashCode(isInherited);
         result = prime * result + Objects.hashCode(nameInCamelCase);
+        result = prime * result + Objects.hashCode(enumName);
         return result;
     }
 
@@ -141,6 +145,9 @@ public class CodegenProperty implements Cloneable {
             return false;
         }
         if ((this.datatypeWithEnum == null) ? (other.datatypeWithEnum != null) : !this.datatypeWithEnum.equals(other.datatypeWithEnum)) {
+            return false;
+        }
+        if ((this.dataFormat == null) ? (other.dataFormat != null) : !this.dataFormat.equals(other.dataFormat)) {
             return false;
         }
         if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
@@ -265,6 +272,9 @@ public class CodegenProperty implements Cloneable {
             return false;
         }
         if (!Objects.equals(this.nameInCamelCase, other.nameInCamelCase)) {
+            return false;
+        }
+        if (!Objects.equals(this.enumName, other.enumName)) {
             return false;
         }
         return true;

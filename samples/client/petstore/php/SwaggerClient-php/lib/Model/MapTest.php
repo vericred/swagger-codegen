@@ -43,12 +43,11 @@ namespace Swagger\Client\Model;
 
 use \ArrayAccess;
 
-
-
 /**
  * MapTest Class Doc Comment
  *
- * @category    Class
+ * @category    Class */
+/** 
  * @package     Swagger\Client
  * @author      http://github.com/swagger-api/swagger-codegen
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache Licene v2
@@ -68,7 +67,6 @@ class MapTest implements ArrayAccess
       */
     protected static $swaggerTypes = array(
         'map_map_of_string' => 'map[string,map[string,string]]',
-        'map_map_of_enum' => 'map[string,map[string,string]]',
         'map_of_enum_string' => 'map[string,string]'
     );
 
@@ -83,7 +81,6 @@ class MapTest implements ArrayAccess
      */
     protected static $attributeMap = array(
         'map_map_of_string' => 'map_map_of_string',
-        'map_map_of_enum' => 'map_map_of_enum',
         'map_of_enum_string' => 'map_of_enum_string'
     );
 
@@ -98,7 +95,6 @@ class MapTest implements ArrayAccess
      */
     protected static $setters = array(
         'map_map_of_string' => 'setMapMapOfString',
-        'map_map_of_enum' => 'setMapMapOfEnum',
         'map_of_enum_string' => 'setMapOfEnumString'
     );
 
@@ -113,7 +109,6 @@ class MapTest implements ArrayAccess
      */
     protected static $getters = array(
         'map_map_of_string' => 'getMapMapOfString',
-        'map_map_of_enum' => 'getMapMapOfEnum',
         'map_of_enum_string' => 'getMapOfEnumString'
     );
 
@@ -122,19 +117,10 @@ class MapTest implements ArrayAccess
         return self::$getters;
     }
 
+    const MAP_OF_ENUM_STRING_UPPER = 'UPPER';
+    const MAP_OF_ENUM_STRING_LOWER = 'lower';
     
 
-    
-    /**
-     * Gets allowable values of the enum
-     * @return string[]
-     */
-    public function getMapMapOfEnumAllowableValues()
-    {
-        return [
-            
-        ];
-    }
     
     /**
      * Gets allowable values of the enum
@@ -143,7 +129,8 @@ class MapTest implements ArrayAccess
     public function getMapOfEnumStringAllowableValues()
     {
         return [
-            
+            self::MAP_OF_ENUM_STRING_UPPER,
+            self::MAP_OF_ENUM_STRING_LOWER,
         ];
     }
     
@@ -161,7 +148,6 @@ class MapTest implements ArrayAccess
     public function __construct(array $data = null)
     {
         $this->container['map_map_of_string'] = isset($data['map_map_of_string']) ? $data['map_map_of_string'] : null;
-        $this->container['map_map_of_enum'] = isset($data['map_map_of_enum']) ? $data['map_map_of_enum'] : null;
         $this->container['map_of_enum_string'] = isset($data['map_of_enum_string']) ? $data['map_of_enum_string'] : null;
     }
 
@@ -173,14 +159,6 @@ class MapTest implements ArrayAccess
     public function listInvalidProperties()
     {
         $invalid_properties = array();
-        $allowed_values = array();
-        if (!in_array($this->container['map_map_of_enum'], $allowed_values)) {
-            $invalid_properties[] = "invalid value for 'map_map_of_enum', must be one of #{allowed_values}.";
-        }
-        $allowed_values = array();
-        if (!in_array($this->container['map_of_enum_string'], $allowed_values)) {
-            $invalid_properties[] = "invalid value for 'map_of_enum_string', must be one of #{allowed_values}.";
-        }
         return $invalid_properties;
     }
 
@@ -192,14 +170,6 @@ class MapTest implements ArrayAccess
      */
     public function valid()
     {
-        $allowed_values = array();
-        if (!in_array($this->container['map_map_of_enum'], $allowed_values)) {
-            return false;
-        }
-        $allowed_values = array();
-        if (!in_array($this->container['map_of_enum_string'], $allowed_values)) {
-            return false;
-        }
         return true;
     }
 
@@ -226,31 +196,6 @@ class MapTest implements ArrayAccess
     }
 
     /**
-     * Gets map_map_of_enum
-     * @return map[string,map[string,string]]
-     */
-    public function getMapMapOfEnum()
-    {
-        return $this->container['map_map_of_enum'];
-    }
-
-    /**
-     * Sets map_map_of_enum
-     * @param map[string,map[string,string]] $map_map_of_enum
-     * @return $this
-     */
-    public function setMapMapOfEnum($map_map_of_enum)
-    {
-        $allowed_values = array();
-        if (!in_array($map_map_of_enum, $allowed_values)) {
-            throw new \InvalidArgumentException("Invalid value for 'map_map_of_enum', must be one of ");
-        }
-        $this->container['map_map_of_enum'] = $map_map_of_enum;
-
-        return $this;
-    }
-
-    /**
      * Gets map_of_enum_string
      * @return map[string,string]
      */
@@ -266,9 +211,9 @@ class MapTest implements ArrayAccess
      */
     public function setMapOfEnumString($map_of_enum_string)
     {
-        $allowed_values = array();
-        if (!in_array($map_of_enum_string, $allowed_values)) {
-            throw new \InvalidArgumentException("Invalid value for 'map_of_enum_string', must be one of ");
+        $allowed_values = array('UPPER', 'lower');
+        if (array_diff($map_of_enum_string, $allowed_values)) {
+            throw new \InvalidArgumentException("Invalid value for 'map_of_enum_string', must be one of 'UPPER', 'lower'");
         }
         $this->container['map_of_enum_string'] = $map_of_enum_string;
 
