@@ -351,7 +351,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
         name = sanitizeName(name); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
 
         if ("class".equals(name.toLowerCase())) {
-            return "PropertyClass";
+            return "propertyClass";
         }
 
         if("_".equals(name)) {
@@ -643,7 +643,7 @@ public abstract class AbstractJavaCodegen extends DefaultCodegen implements Code
 
     @Override
     public Map<String, Object> postProcessModels(Map<String, Object> objs) {
-        // recursivly add import for mapping one type to multipe imports
+        // recursively add import for mapping one type to multiple imports
         List<Map<String, String>> recursiveImports = (List<Map<String, String>>) objs.get("imports");
         if (recursiveImports == null)
             return objs;

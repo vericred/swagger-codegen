@@ -758,6 +758,7 @@ Here are some companies/projects using Swagger Codegen in production. To add you
 - [DecentFoX](http://decentfox.com/)
 - [DocuSign](https://www.docusign.com)
 - [Ergon](http://www.ergon.ch/)
+- [EMC](https://www.emc.com/)
 - [eureka](http://eure.jp/)
 - [everystory.us](http://everystory.us)
 - [Expected Behavior](http://www.expectedbehavior.com/)
@@ -781,8 +782,10 @@ Here are some companies/projects using Swagger Codegen in production. To add you
 - [OSDN](https://osdn.jp)
 - [PagerDuty](https://www.pagerduty.com)
 - [Pepipost](https://www.pepipost.com)
+- [Plexxi](http://www.plexxi.com)
 - [Pixoneye](http://www.pixoneye.com/)
 - [PostAffiliatePro](https://www.postaffiliatepro.com/)
+- [QuantiModo](https://quantimo.do/)
 - [Rapid7](https://rapid7.com/)
 - [Reload! A/S](https://reload.dk/) 
 - [REstore](https://www.restore.eu)
@@ -803,7 +806,7 @@ Here are some companies/projects using Swagger Codegen in production. To add you
 
 # Swagger Codegen Core Team
 
-Swaagger Codegen core team members are contributors who have been making signficiant contributions (review issues, fix bugs, make enhancements, etc) to the project on a regular basis.
+Swaagger Codegen core team members are contributors who have been making significant contributions (review issues, fix bugs, make enhancements, etc) to the project on a regular basis.
 
 ## API Clients
 | Languages     | Core Team (join date) | 

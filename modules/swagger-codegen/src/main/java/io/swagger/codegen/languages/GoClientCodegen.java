@@ -106,6 +106,7 @@ public class GoClientCodegen extends DefaultCodegen implements CodegenConfig {
         // the correct solution is to use []byte
         typeMapping.put("binary", "string");
         typeMapping.put("ByteArray", "string");
+        typeMapping.put("object", "interface{}");
 
         importMapping = new HashMap<String, String>();
         importMapping.put("time.Time", "time");
@@ -117,11 +118,22 @@ public class GoClientCodegen extends DefaultCodegen implements CodegenConfig {
                 .defaultValue("swagger"));
         cliOptions.add(new CliOption(CodegenConstants.PACKAGE_VERSION, "Go package version.")
                 .defaultValue("1.0.0"));
+        cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, "hides the timestamp when files were generated")
+                .defaultValue(Boolean.TRUE.toString()));
+
     }
 
     @Override
     public void processOpts() {
         super.processOpts();
+
+        // default HIDE_GENERATION_TIMESTAMP to true
+        if (!additionalProperties.containsKey(CodegenConstants.HIDE_GENERATION_TIMESTAMP)) {
+            additionalProperties.put(CodegenConstants.HIDE_GENERATION_TIMESTAMP, Boolean.TRUE.toString());
+        } else {
+            additionalProperties.put(CodegenConstants.HIDE_GENERATION_TIMESTAMP,
+                    Boolean.valueOf((String)additionalProperties().get(CodegenConstants.HIDE_GENERATION_TIMESTAMP).toString()));
+        }
 
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_NAME)) {
             setPackageName((String) additionalProperties.get(CodegenConstants.PACKAGE_NAME));
@@ -412,7 +424,7 @@ public class GoClientCodegen extends DefaultCodegen implements CodegenConfig {
         }
 
 
-        // recursivly add import for mapping one type to multipe imports
+        // recursively add import for mapping one type to multiple imports
         List<Map<String, String>> recursiveImports = (List<Map<String, String>>) objs.get("imports");
         if (recursiveImports == null)
             return objs;
@@ -442,7 +454,7 @@ public class GoClientCodegen extends DefaultCodegen implements CodegenConfig {
                 iterator.remove();
         }
 
-        // recursivly add import for mapping one type to multipe imports
+        // recursively add import for mapping one type to multiple imports
         List<Map<String, String>> recursiveImports = (List<Map<String, String>>) objs.get("imports");
         if (recursiveImports == null)
             return objs;

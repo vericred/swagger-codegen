@@ -106,6 +106,7 @@ public class DefaultCodegen {
     protected Boolean ensureUniqueParams = true;
     protected String gitUserId, gitRepoId, releaseNote;
     protected String httpUserAgent;
+    protected Boolean hideGenerationTimestamp = true;
     // How to encode special characters like $
     // They are translated to words like "Dollar" and prefixed with '
     // Then translated back during JSON encoding and decoding
@@ -256,7 +257,7 @@ public class DefaultCodegen {
     }
     
     /**
-     * Return the enum default value in the language specifed format
+     * Return the enum default value in the language specified format
      * 
      * @param value enum variable name
      * @param datatype data type
@@ -267,7 +268,7 @@ public class DefaultCodegen {
     }
 
     /**
-     * Return the enum value in the language specifed format
+     * Return the enum value in the language specified format
      * e.g. status becomes "status"
      * 
      * @param value enum variable name
@@ -358,7 +359,7 @@ public class DefaultCodegen {
      * @return string with unsafe characters removed or escaped
      */
     public String escapeUnsafeCharacters(String input) {
-        LOGGER.warn("escapeUnsafeCharacters should be overriden in the code generator with proper logic to escape unsafe characters");
+        LOGGER.warn("escapeUnsafeCharacters should be overridden in the code generator with proper logic to escape unsafe characters");
         // doing nothing by default and code generator should implement
         // the logic to prevent code injection
         // later we'll make this method abstract to make sure
@@ -372,7 +373,7 @@ public class DefaultCodegen {
      * @return string with quotation mark removed or escaped
      */
     public String escapeQuotationMark(String input) {
-        LOGGER.warn("escapeQuotationMark should be overriden in the code generator with proper logic to escape single/double quote");
+        LOGGER.warn("escapeQuotationMark should be overridden in the code generator with proper logic to escape single/double quote");
         return input.replace("\"", "\\\"");
     }
 
@@ -797,12 +798,12 @@ public class DefaultCodegen {
         cliOptions.add(CliOption.newBoolean(CodegenConstants.ENSURE_UNIQUE_PARAMS, CodegenConstants
                 .ENSURE_UNIQUE_PARAMS_DESC).defaultValue(Boolean.TRUE.toString()));
 
-        // initalize special character mapping
+        // initialize special character mapping
         initalizeSpecialCharacterMapping();
     }
 
     /**
-     * Initalize special character mapping
+     * Initialize special character mapping
      */
     protected void initalizeSpecialCharacterMapping() {
         // Initialize special characters
@@ -1402,7 +1403,8 @@ public class DefaultCodegen {
             property.exclusiveMaximum = np.getExclusiveMaximum();
 
             // check if any validation rule defined
-            if (property.minimum != null || property.maximum != null || property.exclusiveMinimum != null || property.exclusiveMaximum != null)
+            // exclusive* are noop without corresponding min/max
+            if (property.minimum != null || property.maximum != null)
                 property.hasValidation = true;
 
             // legacy support
@@ -2269,8 +2271,8 @@ public class DefaultCodegen {
             p.uniqueItems = qp.isUniqueItems();
             p.multipleOf = qp.getMultipleOf();
 
-            if (p.maximum != null || p.exclusiveMaximum != null ||
-                    p.minimum != null || p.exclusiveMinimum != null ||
+            // exclusive* are noop without corresponding min/max
+            if (p.maximum != null || p.minimum != null ||
                     p.maxLength != null || p.minLength != null ||
                     p.maxItems != null || p.minItems != null ||
                     p.pattern != null) {
@@ -3171,7 +3173,7 @@ public class DefaultCodegen {
      */
     public void setParameterBooleanFlagWithCodegenProperty(CodegenParameter parameter, CodegenProperty property) {
         if (parameter == null) {
-            LOGGER.error("Codegen Parameter cannnot be null.");
+            LOGGER.error("Codegen Parameter cannot be null.");
             return;
         }
 
