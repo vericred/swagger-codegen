@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.license     = "{{gemLicense}}{{^gemLicense}}{{{licenseInfo}}}{{^licenseInfo}}Apache 2.0{{/licenseInfo}}{{/gemLicense}}"
   s.required_ruby_version = "{{{gemRequiredRubyVersion}}}{{^gemRequiredRubyVersion}}>= 1.9{{/gemRequiredRubyVersion}}"
 
-  s.add_runtime_dependency 'typhoeus', '~> 1.0', '>= 1.0.1'
+  s.add_runtime_dependency 'httpclient', '~> 2.0'
   s.add_runtime_dependency 'json', '~> 1.8', '>= 1.8.3'
 
   s.add_development_dependency 'rspec', '~> 3.4', '>= 3.4.0'
