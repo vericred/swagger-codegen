@@ -6,7 +6,7 @@ require 'date'
 require 'json'
 require 'logger'
 require 'tempfile'
-require 'typhoeus'
+require 'httpclient'
 require 'uri'
 
 module {{moduleName}}
@@ -39,26 +39,17 @@ module {{moduleName}}
     # @return [Array<(Object, Fixnum, Hash)>] an array of 3 elements:
     #   the data deserialized from response body (could be nil), response status code and response headers.
     def call_api(http_method, path, opts = {})
-      request = build_request(http_method, path, opts)
-      response = request.run
+      response = run_request(http_method, path, opts)
 
       if @config.debugging
         @config.logger.debug "HTTP response body ~BEGIN~\n#{response.body}\n~END~\n"
       end
 
-      unless response.success?
-        if response.timed_out?
-          fail ApiError.new('Connection timed out')
-        elsif response.code == 0
-          # Errors from libcurl will be made visible here
-          fail ApiError.new(:code => 0,
-                            :message => response.return_message)
-        else
-          fail ApiError.new(:code => response.code,
-                            :response_headers => response.headers,
-                            :response_body => response.body),
-               response.status_message
-        end
+      unless response.ok?
+        fail ApiError.new(:code => response.code,
+                          :response_headers => response.header,
+                          :response_body => response.body),
+           response.reason
       end
 
       if opts[:return_type]
@@ -66,7 +57,7 @@ module {{moduleName}}
       else
         data = nil
       end
-      return data, response.code, response.headers
+      return data, response.code, response.header
     end
 
     # Builds the HTTP request
@@ -77,8 +68,8 @@ module {{moduleName}}
     # @option opts [Hash] :query_params Query parameters
     # @option opts [Hash] :form_params Query parameters
     # @option opts [Object] :body HTTP body (JSON/XML)
-    # @return [Typhoeus::Request] A Typhoeus Request
-    def build_request(http_method, path, opts = {})
+    # @return [HTTP::Message] An HTTP Message
+    def run_request(http_method, path, opts = {})
       url = build_request_url(path)
       http_method = http_method.to_sym.downcase
 
@@ -94,15 +85,8 @@ module {{moduleName}}
       _verify_ssl_host = @config.verify_ssl_host ? 2 : 0
 
       req_opts = {
-        :method => http_method,
-        :headers => header_params,
-        :params => query_params,
-        :params_encoding => @config.params_encoding,
-        :timeout => @config.timeout,
-        :ssl_verifypeer => @config.verify_ssl,
-        :ssl_verifyhost => _verify_ssl_host,
-        :sslcert => @config.cert_file,
-        :sslkey => @config.key_file,
+        :header => header_params,
+        :query => query_params,
         :verbose => @config.debugging
       }
 
@@ -117,7 +101,7 @@ module {{moduleName}}
         end
       end
 
-      Typhoeus::Request.new(url, req_opts)
+      http_client.send(http_method, url, req_opts)
     end
 
     # Check if the given MIME is a JSON MIME.
@@ -161,6 +145,16 @@ module {{moduleName}}
       end
 
       convert_to_type data, return_type
+    end
+
+    # retrieve a new HTTPClient
+    # @return [HTTPClient] Instance of Client
+    def http_client
+      client = HTTPClient.new
+      client.receive_timeout = @config.timeout
+      client.ssl_config.set_client_cert_file(@config.cert_file, @config.key_file)
+      client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT unless @config.verify_ssl
+      client
     end
 
     # Convert data to the given return type.
