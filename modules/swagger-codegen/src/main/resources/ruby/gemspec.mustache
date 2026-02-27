@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.license     = "{{gemLicense}}{{^gemLicense}}{{{licenseInfo}}}{{^licenseInfo}}Apache 2.0{{/licenseInfo}}{{/gemLicense}}"
   s.required_ruby_version = "{{{gemRequiredRubyVersion}}}{{^gemRequiredRubyVersion}}>= 2.3{{/gemRequiredRubyVersion}}"
 
+  s.add_runtime_dependency 'addressable', '~> 2.3'
   s.add_runtime_dependency 'httpclient', '~> 2.0'
   s.add_runtime_dependency 'json'
 
